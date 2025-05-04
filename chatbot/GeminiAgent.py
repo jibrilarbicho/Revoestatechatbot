@@ -11,7 +11,8 @@ from langchain_core.messages import AnyMessage, HumanMessage, AIMessage, ToolMes
 from dotenv import load_dotenv
 from pymongo import MongoClient
 from tool import properties_vector_search, companies_vector_search
-
+from langgraph.checkpoint.memory import MemorySaver
+checkpointer = MemorySaver()
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -31,8 +32,10 @@ mongo_client = MongoClient(
     connectTimeoutMS=30000,
     socketTimeoutMS=30000
 )
+
 properties_collection = mongo_client["revostate"]["properties"]
 companies_collection = mongo_client["revostate"]["companies"]
+
 
 # Verify collections
 try:
@@ -101,7 +104,7 @@ Key Guidelines:
 
 # Define Agent class
 class Agent:
-    def __init__(self, model, tools, system=""):
+    def __init__(self, model, tools,checkpointer, system=""):
         self.system = system
         graph = StateGraph(AgentState)
         graph.add_node("llm", self.call_gemini)
@@ -117,7 +120,7 @@ class Agent:
 
         self.tools = {t.name: t for t in tools}
         self.model = model.bind_tools(tools)
-        self.graph = graph.compile()
+        self.graph = graph.compile(checkpointer=checkpointer)
 
     def exists_action(self, state: AgentState):
         result = state['messages'][-1]
@@ -158,7 +161,7 @@ llm = ChatGoogleGenerativeAI(
     temperature=0.7
 )
 tools = [properties_vector_search, companies_vector_search]
-agent = Agent(model=llm, tools=tools, system=system_prompt)
+agent = Agent(model=llm, tools=tools, system=system_prompt, checkpointer=checkpointer)
 
 # Run agent
 async def run_agent(query: str) -> str:

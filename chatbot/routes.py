@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 class QueryRequest(BaseModel):
     query: Any
+    thread_id: str
 
 @router.post("/chatbot", response_description="Chatbot response", status_code=status.HTTP_200_OK)
 async def chatbot_response(request: Request, response: Response, body: QueryRequest):
@@ -23,11 +24,12 @@ async def chatbot_response(request: Request, response: Response, body: QueryRequ
     try:
         # Extract the query from the request body
         query = body.query
+        thread_id=body.thread_id
         if not query:
             raise HTTPException(status_code=400, detail="Query is required")
 
         # Run the agent with the provided query
-        result = await run_agent(query)
+        result = await run_agent(query, thread_id=thread_id)
         
         # Return the result
         return {"response": result}
@@ -35,12 +37,14 @@ async def chatbot_response(request: Request, response: Response, body: QueryRequ
         logger.error("Error in chatbot_response: %s", str(e))
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-async def run_agent(query: str) -> str:
+async def run_agent(query: str,thread_id:str) -> str:
     state = {
         "messages": [HumanMessage(content=query)]
     }
     try:
-        result = await agent.graph.ainvoke(state)
+        config = {"configurable": {"thread_id": thread_id}}
+
+        result = await agent.graph.ainvoke(state, config)
         last_message = result["messages"][-1].content
         return last_message
     except Exception as e:
