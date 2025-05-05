@@ -10,7 +10,7 @@ from langgraph.graph import StateGraph, END
 from langchain_core.messages import AnyMessage, HumanMessage, AIMessage, ToolMessage, SystemMessage
 from dotenv import load_dotenv
 from pymongo import MongoClient
-from tool import properties_vector_search, companies_vector_search
+from tool import properties_vector_search, companies_vector_search,revoestate_information
 from langgraph.checkpoint.memory import MemorySaver
 checkpointer = MemorySaver()
 # Set up logging
@@ -35,6 +35,8 @@ mongo_client = MongoClient(
 
 properties_collection = mongo_client["revostate"]["properties"]
 companies_collection = mongo_client["revostate"]["companies"]
+revoestate_collection = mongo_client["revostate"]["revoinformation"]
+
 
 
 # Verify collections
@@ -196,6 +198,8 @@ class Agent:
                     result = self.tools[t['name']].invoke({'query': t['args']['query'], 'properties_collection': properties_collection})
                 elif t['name'] == 'companies_vector_search':
                     result = self.tools[t['name']].invoke({'query': t['args']['query'], 'companies_collection': companies_collection})
+                elif t['name'] == 'revoestate_information':
+                    result = self.tools[t['name']].invoke({'query': t['args']['query'], 'revoestate_collection': revoestate_collection})
                 else:
                     result = self.tools[t['name']].invoke(t['args'])
             # Preserve result as a dictionary for detailed formatting
@@ -209,7 +213,7 @@ llm = ChatGoogleGenerativeAI(
     google_api_key=GEMINI_API_KEY,
     temperature=0.7
 )
-tools = [properties_vector_search, companies_vector_search]
+tools = [properties_vector_search, companies_vector_search,revoestate_information]
 agent = Agent(model=llm, tools=tools, system=system_prompt, checkpointer=checkpointer)
 
 # Run agent

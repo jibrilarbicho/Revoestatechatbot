@@ -84,6 +84,41 @@ def companies_vector_search(query: str, companies_collection=None) -> List[dict]
     except Exception as e:
         logger.error("Companies search error: %s", str(e))
         return []
+@tool
+def revoestate_information(query: str, revoestate_collection=None) -> List[dict]:
+    """Search for Revoestate information based on a query and to get information about systsem."""
+
+    try:
+        if revoestate_collection is None:
+            raise ValueError("Revoestate collection not provided")
+        query_embedding = embedmodel.embed_query(query)
+        index_name = "revoinformation_vector_index"
+
+        pipeline = [
+            {
+                "$vectorSearch": {
+                    "index": index_name,
+                    "queryVector": query_embedding,
+                    "path": "revoemb",
+                    "limit": 5,
+                    "numCandidates": 100  # Added required parameter for approximate search
+                }
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "text": 1,
+                    "revoemb": 0,
+                    "score": {"$meta": "vectorSearchScore"}  # Include relevance score
+                }
+            }
+        ]
+
+        results = revoestate_collection.aggregate(pipeline)
+        return list(results)
+    except Exception as e:
+        logger.error("Revoestate search error: %s", str(e))
+        return []
 async def get_properties_by_context(query: str, properties_collection=None) -> List[dict]:
     """Get properties by context."""
     try:
