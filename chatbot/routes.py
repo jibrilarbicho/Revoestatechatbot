@@ -2,10 +2,11 @@ from fastapi import APIRouter, Body, Request, Response, HTTPException, status
 import asyncio
 import logging
 import json
-from GeminiAgent import agent
+from GeminiAgent import agent,properties_collection
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel
 from typing import Any
+from tool import get_properties_by_context
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -52,3 +53,23 @@ async def run_agent(query: str,thread_id:str) -> str:
         if "tool_results" in result and result.get("tool_results"):
             return json.dumps(result["tool_results"], indent=2)
         return f"Sorry, an error occurred: {str(e)}"
+class PropertiesRequest(BaseModel):
+    query: str
+@router.post("/properties-by-context", response_description="Get properties", status_code=status.HTTP_200_OK)
+async def get_properties(request: Request, response: Response, body: PropertiesRequest):
+    """
+    Handles the get properties request.
+    """
+    try:
+        # Extract the query from the request body
+        query = body.query
+        if not query:
+            raise HTTPException(status_code=400, detail="Query is required")
+
+        result = await get_properties_by_context(query,properties_collection)
+        
+        # Return the result
+        return {"response": result}
+    except Exception as e:
+        logger.error("Error in get_properties: %s", str(e))
+        raise HTTPException(status_code=500, detail="Internal Server Error")

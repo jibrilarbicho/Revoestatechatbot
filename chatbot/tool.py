@@ -4,7 +4,6 @@ from langchain_core.documents import Document
 from langchain_huggingface import HuggingFaceEmbeddings
 from serialization import convert_to_serializable
 from typing import List
-
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -82,4 +81,46 @@ def companies_vector_search(query: str, companies_collection=None) -> List[dict]
         ]
     except Exception as e:
         logger.error("Companies search error: %s", str(e))
+        return []
+async def get_properties_by_context(query: str, properties_collection=None) -> List[dict]:
+    """Get properties by context."""
+    try:
+        if properties_collection is None:
+            raise ValueError("Properties collection not provided")
+        query_embedding = embedmodel.embed_query(query)
+        pipeline = [
+            {
+                "$vectorSearch": {
+                    "index": "properties_vector_index",
+                    "path": "revoemb",
+                    "queryVector": query_embedding,
+                    "numCandidates":  100,
+                    "limit": 10
+                }
+            },
+            {
+                "$project": {
+                    "revoemb": 0,
+                    "score": {"$meta": "vectorSearchScore"}
+                }
+            }
+        ]
+        results = list(properties_collection.aggregate(pipeline))
+        
+        # Convert ObjectId fields to strings
+        for result in results:
+            if '_id' in result:
+                result['_id'] = str(result['_id'])
+            if 'companyId' in result:
+                result['companyId'] = str(result['companyId'])
+            if 'userId' in result:
+                result['userId'] = str(result['userId'])
+            # Add other ObjectId fields as needed (e.g., purchaseId)
+            if 'purchaseId' in result:
+                result['purchaseId'] = str(result['purchaseId'])
+        
+        logger.info("Properties by context query: %s, results: %d", query, len(results))
+        return results
+    except Exception as e:
+        logger.error("Properties by context error: %s", str(e))
         return []
