@@ -7,6 +7,9 @@ from typing import List
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+import os
+os.environ["HF_HOME"] = "/app/.cache" 
+os.environ["TRANSFORMERS_CACHE"] = "/app/.cache"
 
 # Initialize embeddings
 embedmodel = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
