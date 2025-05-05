@@ -181,7 +181,7 @@ class Agent:
             messages = [SystemMessage(content=self.system)] + messages
         message = self.model.invoke(messages)
         return {'messages': [message]}
-
+# take action
     def take_action(self, state: AgentState):
         tool_calls = state['messages'][-1].tool_calls
         results = []
