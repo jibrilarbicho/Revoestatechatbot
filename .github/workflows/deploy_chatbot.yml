@@ -1,4 +1,4 @@
-name: Deploy Model to Hugging Face Spaces
+name: Deploy Chatbot to Hugging Face Spaces
 
 on:
   push:
@@ -14,8 +14,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Check Git Installation
+      - name: Set up Git
         run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
           git --version
           which git
 
@@ -24,11 +26,9 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_USERNAME: ${{ secrets.HF_USERNAME }}
         run: |
-          git config --global user.email "github-actions@github.com"
-          git config --global user.name "GitHub Actions"
           git clone https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${HF_USERNAME}/Revochatbot ./space
-          cp -r ./* ./space/  # Copy all files from repo root to space
+          cp -r ./chatbot/* ./space/
           cd ./space
           git add .
-          git commit -m "Deploy Dockerized app from GitHub Actions" || echo "No changes to commit"
+          git commit -m "Deploy chatbot from GitHub Actions" --allow-empty
           git push
