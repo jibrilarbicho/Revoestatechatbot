@@ -217,7 +217,26 @@ def raw_vector_search(collection, query: str, index_name: str, k: int = 10) -> L
 # Define tools
 @tool
 def properties_vector_search(query: str, properties_collection=None) -> List[dict]:
-    """Search for real estate properties based on a query."""
+    """Search for real estate properties in Addis Ababa, Ethiopia, based on a user query.
+    
+    This tool searches a collection of properties including homes, apartments, villas, condos, and more.
+    It returns detailed information such as title, price, location (with subcity/district and coordinates if available),
+    specifications (bedrooms, bathrooms, area, built year), amenities, and descriptions.
+    
+    Args:
+        query (str): The user's search query (e.g., "apartments in Bole" or "villas with 3 bedrooms").
+        properties_collection: The database collection containing property data (defaults to None).
+    
+    Returns:
+        List[dict]: A list of dictionaries, each containing:
+            - content (str): The property description.
+            - metadata (dict): Property details (e.g., price, location, bedrooms).
+            - score (float): Relevance score of the match.
+    
+    Raises:
+        ValueError: If properties_collection is not provided.
+        Exception: If the search fails due to database or processing errors.
+    """ 
     try:
         if properties_collection is None:
             raise ValueError("Properties collection not provided")
@@ -237,7 +256,26 @@ def properties_vector_search(query: str, properties_collection=None) -> List[dic
 
 @tool
 def companies_vector_search(query: str, companies_collection=None) -> List[dict]:
-    """Search for real estate companies based on a query."""
+    """Search for real estate companies in Addis Ababa, Ethiopia, based on a user query.
+    
+    This tool retrieves information about real estate agencies or companies, including their name,
+    services offered, contact details (phone, email, website), physical address, years in operation,
+    and specializations. Use this when the user explicitly asks about a company (e.g., "Tell me about ABC Realty").
+    
+    Args:
+        query (str): The user's search query (e.g., "real estate companies in Addis" or "ABC Realty details").
+        companies_collection: The database collection containing company data (defaults to None).
+    
+    Returns:
+        List[dict]: A list of dictionaries, each containing:
+            - content (str): The company description.
+            - metadata (dict): Company details (e.g., contact info, services).
+            - score (float): Relevance score of the match.
+    
+    Raises:
+        ValueError: If companies_collection is not provided.
+        Exception: If the search fails due to database or processing errors.
+    """
     try:
         if companies_collection is None:
             raise ValueError("Companies collection not provided")
@@ -257,7 +295,26 @@ def companies_vector_search(query: str, companies_collection=None) -> List[dict]
 
 @tool
 def revoestate_information(query: str, revoestate_collection=None) -> List[dict]:
-    """Search for Revoestate information based on a query and to get information about system."""
+    """Search for information about the Revoestate platform based on a user query.
+    
+    This tool provides details about Revoestate, including its mission, services (e.g., property listings,
+    company profiles), role in Ethiopian real estate, how to use the platform (e.g., listing properties,
+    searching for homes), and contact information. Use this for queries like "What is Revoestate?",
+    "How do I use this website?", or "What services does Revoestate offer?".
+    
+    Args:
+        query (str): The user's query about Revoestate (e.g., "What is Revoestate?" or "How to list a property").
+        revoestate_collection: The database collection containing Revoestate data (defaults to None).
+    
+    Returns:
+        List[dict]: A list of dictionaries, each containing:
+            - text (str): Information about Revoestate.
+            - score (float): Relevance score of the match.
+    
+    Raises:
+        ValueError: If revoestate_collection is not provided.
+        Exception: If the search fails due to database or processing errors.
+    """
     try:
         if revoestate_collection is None:
             raise ValueError("Revoestate collection not provided")
