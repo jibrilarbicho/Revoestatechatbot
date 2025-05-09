@@ -280,7 +280,7 @@ def companies_vector_search(query: str, companies_collection=None) -> List[dict]
     try:
         if companies_collection is None:
             raise ValueError("Companies collection not provided")
-        results = raw_vector_search(companies_collection, query, "companies_vector_index",exclude_fields=["revoemb"])
+        results = raw_vector_search(companies_collection, query, "companies_vector_index",exclude_fields=["revoemb","documentUrl","imageUrl"])
         logger.info("Companies query: %s, results: %d", query, len(results),results)
         return [
             {
