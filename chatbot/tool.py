@@ -241,7 +241,7 @@ def properties_vector_search(query: str, properties_collection=None) -> List[dic
         if properties_collection is None:
             raise ValueError("Properties collection not provided")
         results = raw_vector_search(properties_collection, query, "properties_vector_index")
-        logger.info("Properties query: %s, results: %d", query, len(results))
+        logger.info("Properties query: %s, results: %d", query, len(results),results)
         return [
             {
                 "content": r.page_content,
@@ -280,7 +280,7 @@ def companies_vector_search(query: str, companies_collection=None) -> List[dict]
         if companies_collection is None:
             raise ValueError("Companies collection not provided")
         results = raw_vector_search(companies_collection, query, "companies_vector_index")
-        logger.info("Companies query: %s, results: %d", query, len(results))
+        logger.info("Companies query: %s, results: %d", query, len(results),results)
         return [
             {
                 "content": r.page_content,
