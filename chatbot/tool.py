@@ -179,7 +179,7 @@ os.environ["HF_HOME"] = "/app/.cache"
 embedmodel = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
 # Raw vector search function
-def raw_vector_search(collection, query: str, index_name: str, k: int = 10) -> List[Document]:
+def raw_vector_search(collection, query: str, index_name: str, exclude_fields: List[str] = [], k: int = 10) -> List[Document]:
     try:
         query_embedding = embedmodel.embed_query(query)
         pipeline = [
@@ -193,27 +193,28 @@ def raw_vector_search(collection, query: str, index_name: str, k: int = 10) -> L
                 }
             },
             {
+                "$addFields": {
+                    "score": {"$meta": "vectorSearchScore"}
+                }
+            },
+            {
                 "$project": {
-                    "_id": 0,  # Explicitly exclude _id
-                    "description": 1,  # Include description
-                    "score": {"$meta": "vectorSearchScore"},  # Include score
-                    # Include other fields as needed
-                    "companyId": 1,
-                    "userId": 1,
-                    "purchaseId": 1
+                    **{field: 0 for field in exclude_fields},
                 }
             }
         ]
         results = list(collection.aggregate(pipeline))
-        return [Document(
-            page_content=r.get("description", ""),
-            metadata={k: v for k, v in r.items() if k != "description"},
-            score=r.get("score", 0)
-        ) for r in results]
+        return [
+            Document(
+                page_content=r.get("description", ""),
+                metadata={k: v for k, v in r.items() if k != "description"},
+                score=r.get("score", 0)
+            )
+            for r in results
+        ]
     except Exception as e:
         logger.error("Vector search error: %s", str(e))
         return []
-
 # Define tools
 @tool
 def properties_vector_search(query: str, properties_collection=None) -> List[dict]:
@@ -240,7 +241,7 @@ def properties_vector_search(query: str, properties_collection=None) -> List[dic
     try:
         if properties_collection is None:
             raise ValueError("Properties collection not provided")
-        results = raw_vector_search(properties_collection, query, "properties_vector_index")
+        results = raw_vector_search(properties_collection, query, "properties_vector_index",exclude_fields=["images", "panoramicImages","revoemb"])
         logger.info("Properties query: %s, results: %d", query, len(results),results)
         return [
             {
@@ -279,7 +280,7 @@ def companies_vector_search(query: str, companies_collection=None) -> List[dict]
     try:
         if companies_collection is None:
             raise ValueError("Companies collection not provided")
-        results = raw_vector_search(companies_collection, query, "companies_vector_index")
+        results = raw_vector_search(companies_collection, query, "companies_vector_index",exclude_fields=["revoemb"])
         logger.info("Companies query: %s, results: %d", query, len(results),results)
         return [
             {
