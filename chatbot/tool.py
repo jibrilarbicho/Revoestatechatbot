@@ -297,24 +297,29 @@ def companies_vector_search(query: str, companies_collection=None) -> List[dict]
 @tool
 def revoestate_information(query: str, revoestate_collection=None) -> List[dict]:
     """Search for information about the Revoestate platform based on a user query.
-    
+
     This tool provides details about Revoestate, including its mission, services (e.g., property listings,
     company profiles), role in Ethiopian real estate, how to use the platform (e.g., listing properties,
     searching for homes), and contact information. Use this for queries like "What is Revoestate?",
     "How do I use this website?", or "What services does Revoestate offer?".
-    
-    Args:
-        query (str): The user's query about Revoestate (e.g., "What is Revoestate?" or "How to list a property").
-        revoestate_collection: The database collection containing Revoestate data (defaults to None).
-    
-    Returns:
+
+    **Args:**
+        query (str): The user's query about Revoestate (e.g., "What is Revoestate?" or "How to list a property or who are founders of this platform").
+        revoestate_collection: The database collection containing Revoestate data. This parameter is required
+            for the search to execute.
+
+    **Returns:**
         List[dict]: A list of dictionaries, each containing:
-            - text (str): Information about Revoestate.
-            - score (float): Relevance score of the match.
-    
-    Raises:
-        ValueError: If revoestate_collection is not provided.
+            - 'text' (str): Information about Revoestate.
+            - 'score' (float): Relevance score of the match.
+
+    **Raises:**
+        ValueError: If `revoestate_collection` is not provided.
         Exception: If the search fails due to database or processing errors.
+
+    **Note:**
+        This tool is designed to be integrated into chatbots or APIs to provide real-time information
+        about Revoestate based on user queries.
     """
     try:
         if revoestate_collection is None:
