@@ -260,7 +260,7 @@ class Agent:
         tool_calls = state['messages'][-1].tool_calls
         results = []
         for t in tool_calls:
-            print(f"Calling: {t}")
+            logger.info("Calling tool: %s", t['name'])
             if t['name'] not in self.tools:
                 print("\n ....bad tool name....")
                 result = "bad tool name, retry"
@@ -277,7 +277,9 @@ class Agent:
             # Preserve result as a dictionary for detailed formatting
             results.append(ToolMessage(tool_call_id=t['id'], name=t['name'], content=json.dumps(result)))
         print("Back to the model!")
+        logger.info("Tool results: %s", results)
         return {'messages': results}
+    
 
 # Initialize LLM and Agent
 llm = ChatGoogleGenerativeAI(
