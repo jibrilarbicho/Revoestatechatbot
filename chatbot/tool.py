@@ -365,7 +365,7 @@ async def get_properties_by_context(query: str, properties_collection=None) -> L
                     "path": "revoemb",
                     "queryVector": query_embedding,
                     "numCandidates": 100,
-                    "limit": 10
+                    "limit": 6
                 }
             },
             {
