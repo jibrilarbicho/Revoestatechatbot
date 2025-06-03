@@ -69,7 +69,7 @@ async def get_properties(request: Request, response: Response, body: PropertiesR
         result = await get_properties_by_context(query,properties_collection)
         
         # Return the result
-        return {"response": result}
+        return {"properties": result}
     except Exception as e:
         logger.error("Error in get_properties: %s", str(e))
         raise HTTPException(status_code=500, detail="Internal Server Error")
