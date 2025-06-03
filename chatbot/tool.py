@@ -370,13 +370,16 @@ async def get_properties_by_context(query: str, properties_collection=None) -> L
             },
             {
                 "$project": {
-                    "_id": 0,  # Explicitly exclude _id
-                    "description": 1,  # Include description
-                    "score": {"$meta": "vectorSearchScore"},  # Include score
-                    # Include other fields as needed
-                    "companyId": 1,
-                    "userId": 1,
-                    "purchaseId": 1
+                    # "_id": 0,  # Explicitly exclude _id
+                    # "description": 1,  # Include description
+                    # "score": {"$meta": "vectorSearchScore"},  # Include score
+                    # # Include other fields as needed
+                    # "companyId": 1,
+                    # "userId": 1,
+                    # "purchaseId": 1
+                    "revoemb": 0,  
+                    "score": {"$meta": "vectorSearchScore"}
+
                 }
             }
         ]
